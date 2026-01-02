@@ -26,7 +26,7 @@ export default function Home() {
             Diabetes <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-cyan-500">Prediction</span> System
           </h1>
           <p className="text-lg text-slate-300 max-w-2xl mx-auto leading-relaxed">
-          The prediction system uses advanced machine learning algorithms to analyze multiple health 
+          The prediction system uses advanced Decision Tree algorithms to analyze multiple health 
               parameters and calculate your diabetes risk score. The model considers factors like age, BMI, 
               blood glucose levels, and lifestyle habits to provide accurate predictions.
           </p>
