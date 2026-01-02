@@ -102,7 +102,7 @@ export default function Home() {
 
   const resultRef = useRef<HTMLDivElement>(null);
 
-  const BASE_URL = "https://diabetes-risk-prediction-fzt3.onrender.com";
+  const BASE_URL = "https://decision-tree-diabetes-risk-prediction.onrender.com";
 
   const predictDiabetes = async (patientData: Patient): Promise<PredictionResponse> => {
     try {
