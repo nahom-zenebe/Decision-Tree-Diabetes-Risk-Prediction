@@ -1,4 +1,4 @@
-# Diabetes Risk Prediction — Full Project
+# Diabetes Risk Prediction — Using Descision Tree model
 
 A complete diabetes risk prediction app with:
 

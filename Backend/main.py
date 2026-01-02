@@ -5,17 +5,17 @@ import joblib
 from pathlib import Path
 import pandas as pd
 import os
-
+import numpy as np
 
 BASE_DIR = Path(__file__).resolve().parent
 
 # Try multiple possible paths for the model file
 possible_paths = [
-    BASE_DIR / "model" / "diabetes_decision_tree.pkl",  # Relative to main.py
-    Path("model/diabetes_decision_tree.pkl"),  # Relative to current directory
-    Path("Backend/model/diabetes_decision_tree.pkl"),  # From project root
-    Path(os.path.join(os.getcwd(), "model", "diabetes_decision_tree.pkl")),  # From cwd
-    Path(os.path.join(os.getcwd(), "Backend", "model", "diabetes_decision_tree.pkl")),  # From cwd/Backend
+    BASE_DIR / "model" / "diabetes_decision_tree.pkl",
+    Path("model/diabetes_decision_tree.pkl"),
+    Path("Backend/model/diabetes_decision_tree.pkl"),
+    Path(os.path.join(os.getcwd(), "model", "diabetes_decision_tree.pkl")),
+    Path(os.path.join(os.getcwd(), "Backend", "model", "diabetes_decision_tree.pkl")),
 ]
 
 model_path = None
@@ -36,14 +36,6 @@ model = joblib.load(model_path)
 
 app = FastAPI(title="Diabetes Risk Prediction API")
 
-
-# origins = [
-#     "http://localhost:3000", 
-#     "http://127.0.0.1:3000", 
-#     "https://diabetes-risk-prediction-eight.vercel.app/"
-   
-# ]
-
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],     
@@ -51,9 +43,6 @@ app.add_middleware(
     allow_methods=["*"],            
     allow_headers=["*"],           
 )
-
-
-
 
 class Patient(BaseModel):
     gender: int                     
@@ -71,19 +60,48 @@ class Patient(BaseModel):
 
 @app.post("/predict")
 def predict_diabetes(patient: Patient):
-   
-    input_df = pd.DataFrame([patient.dict()])
+  
+    input_dict = patient.dict()
+    input_df = pd.DataFrame([input_dict])
     
+  
+    input_df["glucose_bmi_ratio"] = input_df["blood_glucose_level"] / (input_df["bmi"] + 1e-6) 
+    input_df["age_hba1c"] = input_df["age"] * input_df["HbA1c_level"]
+    input_df["bmi_age_interaction"] = input_df["bmi"] * input_df["age"]
+    input_df["hba1c_glucose_ratio"] = input_df["HbA1c_level"] / (input_df["blood_glucose_level"] + 1e-6)
+    input_df["risk_score"] = input_df["HbA1c_level"] * input_df["blood_glucose_level"] * input_df["age"] / 1000
     
+ 
     for col in model.feature_names_in_:
         if col not in input_df.columns:
             input_df[col] = 0
     
- 
+    
     input_df = input_df[model.feature_names_in_]
     
-   
+
     prob = model.predict_proba(input_df)[:,1][0]   
     pred_class = int(model.predict(input_df)[0]) 
     
-    return {"prediction": pred_class, "probability": prob}
+
+    if prob < 0.3:
+        risk_level = "Low"
+    elif prob < 0.7:
+        risk_level = "Medium"
+    else:
+        risk_level = "High"
+    
+    return {
+        "prediction": pred_class, 
+        "probability": float(prob),
+        "risk_level": risk_level,
+        "message": f"Diabetes risk is {risk_level} ({prob:.1%} probability)"
+    }
+
+@app.get("/features")
+def get_expected_features():
+    """Endpoint to see what features the model expects"""
+    return {
+        "expected_features": list(model.feature_names_in_),
+        "total_features": len(model.feature_names_in_)
+    }
