@@ -1,0 +1,47 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.so
+*.egg-info/
+.eggs/
+
+# Virtual environment
+venv/
+.env/
+.env.*
+.venv/
+
+# IDEs & editors
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Model artifacts (optional but recommended)
+model/*.pkl
+model/*.joblib
+
+# Data files (optional)
+data/
+*.csv
+
+# Testing / coverage
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Build
+dist/
+build/
